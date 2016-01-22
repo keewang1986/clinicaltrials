@@ -1,6 +1,7 @@
 require File.dirname(__FILE__)+'/drug'
 require File.dirname(__FILE__)+'/file_cls'
 
+
 #打开查询页面
 page = Nokogiri::HTML(open('https://clinicaltrials.gov/ct2/results?term=&Search=Search'))
 links = page.css("a")
