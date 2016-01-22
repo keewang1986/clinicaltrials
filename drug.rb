@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
+require 'json'
 
 class Drug
   #读取记录的URL
@@ -19,34 +20,35 @@ class Drug
     sponsor = doc.css("div#sponsor").text
     #责任方
     responsible = doc.css("div[class=info-text]")[1].text
+    hash_data = Hash.new
+    hash_data[:title] = title
+    hash_data[:identifier] = identifier
+    hash_data[:sponsor] = sponsor
+    hash_data[:responsible] = responsible
 
-    json = ""
-    json += "{"
-    json += "\"title\":\""+title+"\","
-    json += "\"identifier\":\""+identifier+"\","
-    json += "\"sponsor\":\""+sponsor+"\","
-    json += "\"responsible\":\""+responsible+"\","
+    hash_data[:sub_title] = read_tr(doc)
 
-    json += read_tr(doc)
-
-    json += "}"
-    puts json
-    #read_tr(doc)
+    return hash_data
   end
 
   #读取每个TR
   private
   def self.read_tr(_doc)
-    json = ""
+
+    hash_trs = Hash.new
+
     #查询所有的tr
     trs = _doc.css("tr")
     trs.each do |tr|
       #tr转字符串
       tr_text = "#{tr}"
       doc =  Nokogiri::HTML(tr_text)
-      json += read_row(doc,tr_text)
+      hash_new = read_row(doc,tr_text)
+      if hash_new !={}
+        hash_trs = hash_trs.merge hash_new
+      end
     end
-    return "{" + json[0,json.length-1]+ "}}"
+    return hash_trs
   end
 
   #读取每行的HR和TD
@@ -54,19 +56,19 @@ class Drug
   def self.read_row(_doc,_tr)
     tr = _tr
     doc = _doc
-    json = ""
-    if tr.include? "header2"
-      th = doc.css("th").text
-      json += "\""+th+"\":{"
-    end
 
+    hash_tr = Hash.new
 
     if tr.include? "header3"
       th = doc.css("th").text
-      td = doc.css("td").text
-      json += "\""+th+"\":\""+td+"\","
+      th_text = "#{th}"
+      if th_text!=""
+         td = doc.css("td").text
+         hash_tr[th_text] = td
+      end
     end
-    return json
+
+    return hash_tr
   end
 
 end
