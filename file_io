@@ -1,0 +1,4 @@
+file_path = "#{File.dirname(__FILE__)}"
+file_new = File.new("test.txt","w+")
+file_new.syswrite("13")
+file_new.close()
