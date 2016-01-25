@@ -34,8 +34,12 @@ class Drug
   #读取每个TR
   private
   def self.read_tr(_doc)
-
+    #存储sub_title内容
     hash_trs = Hash.new
+    #存储sub_title子类内容
+    hash_trs_child = Hash.new
+    #sub_title子类的KEY建
+    sub_title = ""
 
     #查询所有的tr
     trs = _doc.css("tr")
@@ -43,9 +47,26 @@ class Drug
       #tr转字符串
       tr_text = "#{tr}"
       doc =  Nokogiri::HTML(tr_text)
-      hash_new = read_row(doc,tr_text)
-      if hash_new !={}
-        hash_trs = hash_trs.merge hash_new
+      if tr_text.include? "header2"
+          #将sub_title子类的内容存入
+          if hash_trs_child != {}
+            hash_trs[sub_title] = hash_trs_child
+          end
+          hash_trs_child = Hash.new
+          hash_trs_child = Hash.new
+          th = doc.css("th").text
+          sub_title = "#{th}"
+          sub_title = sub_title.gsub('ICMJE','').gsub(' ','').lstrip.rstrip
+          hash_trs[sub_title] = Hash.new
+      else
+        tr_text=tr_text.gsub(' ','')
+        hash_new = read_row(doc,tr_text)
+        if hash_new !={}
+          hash_trs_child = hash_trs_child.merge hash_new
+      end
+    end
+      if hash_trs_child != {}
+        hash_trs[sub_title] = hash_trs_child
       end
     end
     return hash_trs
@@ -64,6 +85,11 @@ class Drug
       th_text = "#{th}"
       if th_text!=""
          td = doc.css("td").text
+         td = td.lstrip.rstrip
+         th_text = th_text.gsub("ICMJE","")
+         th_text = th_text.gsub(" ","")
+         th_text = th_text.lstrip
+         th_text = th_text.rstrip
          hash_tr[th_text] = td
       end
     end
