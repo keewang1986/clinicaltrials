@@ -45,8 +45,8 @@ class Drug
     trs = _doc.css("tr")
     trs.each do |tr|
       #tr转字符串
-      tr_text = "#{tr}".gsub(' ','')
-      tr_text = "#{tr}".gsub('<br>','\r\n')
+      tr_text = "#{tr}".gsub(" "," ")
+      tr_text = tr_text.gsub('<br>','\r\n')
       doc =  Nokogiri::HTML(tr_text)
       if tr_text.include? "header2"
           #将sub_title子类的内容存入
@@ -88,7 +88,7 @@ class Drug
          td = doc.css("td").text
          td = td.lstrip.rstrip
          th_text = th_text.gsub("ICMJE","")
-         th_text = th_text.gsub(" ","")
+         th_text = th_text.gsub(' ','')
          th_text = th_text.lstrip
          th_text = th_text.rstrip
          hash_tr[th_text] = td
